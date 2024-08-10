@@ -34,22 +34,21 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    personalModules = {
-      # url = "git+https://git.k8s.lan/r/nixos-modules.git";
-      url = "git+http://10.0.1.11:3000/r/nixos-modules.git";
+    nikiModules = {
+      url = "github:rochecompaan/niki-nixos-modules.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, deploy-rs, home-manager, sops-nix, agenix, nur, disko, personalModules, ... } @ inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, deploy-rs, home-manager, sops-nix, agenix, nur, disko, nikiModules, ... } @ inputs:
     let
       inherit (nixpkgs) lib;
       overlays = lib.flatten [
         nur.overlay
-        personalModules.overrides
-        personalModules.pkgs
+        nikiModules.overrides
+        nikiModules.pkgs
       ];
-      nixosDeployments = personalModules.utils.deploy.generateNixosDeployments {
+      nixosDeployments = nikiModules.utils.deploy.generateNixosDeployments {
         inherit inputs;
         path = ./systems;
         ssh-user = "nix";
@@ -62,7 +61,7 @@
       };
     in
     {
-      inherit (personalModules) formatter devShells packages nixosModules homeManagerModules nixosRoles homeManagerRoles;
+      inherit (nikiModules) formatter devShells packages nixosModules homeManagerModules nixosRoles homeManagerRoles;
       inherit (nixosDeployments) nixosConfigurations deploy checks;
     };
 }
